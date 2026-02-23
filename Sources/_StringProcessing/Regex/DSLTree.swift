@@ -802,19 +802,19 @@ extension CaptureList.Builder {
         optionalDepth: nesting.depth, visibleInTypedOutput: visibleInTypedOutput, .fake))
       addCaptures(in: &list, optionalNesting: nesting, visibleInTypedOutput: visibleInTypedOutput)
 
-    case let .nonCapturingGroup(kind, child):
+    case .nonCapturingGroup(let kind, _):
       assert(!kind.ast.isCapturing)
       addCaptures(in: &list, optionalNesting: nesting, visibleInTypedOutput: visibleInTypedOutput)
-      
-    case let .ignoreCapturesInTypedOutput(child):
+
+    case .ignoreCapturesInTypedOutput(_):
       addCaptures(in: &list, optionalNesting: nesting, visibleInTypedOutput: false)
 
-    case let .limitCaptureNesting(child):
+    case .limitCaptureNesting(_):
       addCaptures(in: &list, optionalNesting: nesting.disablingNesting, visibleInTypedOutput: visibleInTypedOutput)
-      
-    case let .conditional(cond, trueBranch, falseBranch):
+
+    case let .conditional(cond, _, _):
       switch cond.ast {
-      case .group(let g):
+      case .group(_):
         addCaptures(in: &list, optionalNesting: nesting, visibleInTypedOutput: visibleInTypedOutput)
       default:
         break
@@ -823,7 +823,7 @@ extension CaptureList.Builder {
       addCaptures(in: &list, optionalNesting: nesting.addingOptional, visibleInTypedOutput: visibleInTypedOutput)
       addCaptures(in: &list, optionalNesting: nesting.addingOptional, visibleInTypedOutput: visibleInTypedOutput)
 
-    case let .quantification(amount, _, child):
+    case let .quantification(amount, _, _):
       var optNesting = nesting
       if amount.ast.bounds.atLeast == 0 {
         optNesting = optNesting.addingOptional
@@ -832,7 +832,7 @@ extension CaptureList.Builder {
 
     case let .absentFunction(abs):
       switch abs.ast.kind {
-      case .expression(_, _, let child):
+      case .expression(_, _, _):
         addCaptures(in: &list, optionalNesting: nesting, visibleInTypedOutput: visibleInTypedOutput)
       case .clearer, .repeater, .stopper:
         break
@@ -1225,7 +1225,7 @@ extension DSLTree {
       }
       
       internal var isChangeMatchingOptions: Bool {
-        if case let .changeMatchingOptions = ast {
+        if case .changeMatchingOptions = ast {
           return true
         } else {
           return false

@@ -713,13 +713,13 @@ fileprivate extension Compiler.ByteCodeGen {
       default:
         return false
       }
-    case .limitCaptureNesting(let node):
+    case .limitCaptureNesting:
       if tryEmitFastQuant(&list, kind, minTrips, maxExtraTrips) {
         return true
       } else {
         return false
       }
-    case .nonCapturingGroup(let groupKind, let node):
+    case .nonCapturingGroup(let groupKind, _):
       // .nonCapture nonCapturingGroups are ignored during compilation
       guard groupKind.ast == .nonCapture else {
         return false
@@ -796,10 +796,10 @@ fileprivate extension Compiler.ByteCodeGen {
     case let .nonCapturingGroup(kind, _):
       try emitNoncapturingGroup(kind.ast, &list)
       
-    case let .ignoreCapturesInTypedOutput(_):
+    case .ignoreCapturesInTypedOutput(_):
       try emitNode(&list)
       
-    case let .limitCaptureNesting(_):
+    case .limitCaptureNesting(_):
       return try emitNode(&list)
       
     case .conditional:
@@ -864,10 +864,10 @@ extension Compiler.ByteCodeGen {
         try skipNode(&list, preservingCaptures: preservingCaptures)
       }
 
-    case let .capture(name, refId, _, transform):
+    case let .capture(name, refId, _, _):
       options.beginScope()
       defer { options.endScope() }
-      
+
       if preservingCaptures {
         let cap = builder.makeCapture(id: refId, name: name)
         builder.buildBeginCapture(cap)
@@ -877,7 +877,7 @@ extension Compiler.ByteCodeGen {
         try skipNode(&list, preservingCaptures: preservingCaptures)
       }
       
-    case let .nonCapturingGroup(kind, _):
+    case .nonCapturingGroup(_, _):
       try skipNode(&list, preservingCaptures: preservingCaptures)
 
     case .ignoreCapturesInTypedOutput:
@@ -886,9 +886,9 @@ extension Compiler.ByteCodeGen {
     case .limitCaptureNesting:
       try skipNode(&list, preservingCaptures: preservingCaptures)
 
-    case let .quantification(amt, kind, _):
+    case .quantification(_, _, _):
       try skipNode(&list, preservingCaptures: preservingCaptures)
-      
+
     case .customCharacterClass, .atom, .quotedLiteral, .matcher:
       break
       
