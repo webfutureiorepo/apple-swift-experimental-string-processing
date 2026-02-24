@@ -25,7 +25,7 @@ extension AST.Node {
       for child in alternation.children {
         try child.convert(into: &list)
       }
-    case .concatenation(let concatenation):
+    case .concatenation(_):
       let coalesced = self.coalescedChildren
       list.append(.concatenation(Array(repeating: TEMP_FAKE_NODE, count: coalesced.count)))
       for child in coalesced {
@@ -77,6 +77,8 @@ extension AST.Node {
       list.append(.absentFunction(.init(ast: abs)))
     case .empty(_):
       list.append(.empty)
+    @unknown default:
+      throw Unsupported("Unknown AST node")
     }
   }
   
@@ -145,6 +147,8 @@ extension AST.Node {
     case .quantification(let quant):
       return [quant.child]
     case .quote, .trivia, .interpolation, .atom, .customCharacterClass, .absentFunction, .empty:
+      return []
+    @unknown default:
       return []
     }
   }
